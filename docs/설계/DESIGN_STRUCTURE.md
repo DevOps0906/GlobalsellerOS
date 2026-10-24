@@ -195,6 +195,8 @@ flowchart LR
 | `shipments` | `status` | `pending` → `at_warehouse` → `departed` → `customs` → `out_for_delivery` → `delivered`, 분기 `delayed`, `exception` | 배송 중·통관 중·지연·완료 |
 | `market_accounts` | `status` | `connecting` → `active`, 분기 `token_expired`, `error`, `disconnected` | 연결됨·만료·미연결 |
 | `collect_jobs` / `listing_batches` | `status` | `queued` → `running` → `completed`, 분기 `failed`, `cancelled` | 진행·완료 |
+| `listing_batch_items` | `status` | `pending` → `queued` → `submitted`, 분기 `failed`, `skipped`(검증 `block`) | 일괄 등록 항목 결과 |
+| `purchases` | `status` | `ordered` → `delivered_to_warehouse`, 분기 `cancelled`, `refunded` | 발주 상태 |
 
 S-05 상태 그룹: 발주 대기 = `purchase_pending` / 배대지 = `purchased`, `at_warehouse` / 발송됨 = `shipped`, `delivered` / 취소·반품 = `cancel_requested`, `cancelled`, `return_requested`, `returned`.
 
@@ -388,6 +390,7 @@ flowchart LR
 | `/api/shipments` | GET, POST | S-06 | 송장 목록·등록(일괄 업로드 포함) |
 | `/api/shipments/[id]` | GET | S-06 | 구간 이벤트 |
 | `/api/profit` | GET | S-07 | 월별·마켓별·상품별 집계 |
+| `/api/account/usage` | GET | S-10 플랜 | 플랜 한도 대비 사용량(`plan_usage`) |
 | `/api/markets/catalog` | GET | S-11 | 마켓 카탈로그(정적) |
 | `/api/markets/readiness` | GET, PUT | S-11 1단계 | 여건 진단 답변 |
 | `/api/markets/connect/start` | POST | S-11 3단계 | OAuth state 발급 → 마켓 인증 URL |

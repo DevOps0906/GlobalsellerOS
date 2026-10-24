@@ -36,14 +36,47 @@
 | **쿠팡 대량 수집** | **수익 분석** |
 | ![bulk](prototype/screenshots/products-bulk-collect.png) | ![profit](prototype/screenshots/profit-analysis.png) |
 
+## 문서
+
+| 문서 | 내용 |
+| --- | --- |
+| [디자인 구조](docs/설계/DESIGN_STRUCTURE.md) | 프로토타입 구조를 옮긴 다이어그램 7개(IA, 셸, 마켓 탭 패턴, 마켓 추가 마법사, 데이터 흐름, 시스템 구성, 모듈)와 화면 ID·라우트·테이블·상태 값의 정본 |
+| [기획서](docs/기획서/README.md) | platform-docs 형식 9종: README, 01 PRD, 02 아키텍처, 03 화면·UX, 04 API, 05 데이터 모델, 06 작업 계획(55개), 07 이식, 08 디자인 시스템 |
+| [개발서](docs/개발서/globalseller-os_develop.md) | 준비, 로컬 DB, 멀티에이전트 개발 사이클, 웨이브, 마켓 API 연동 순서, 수집 경로, 검증, 인증 단계 |
+| [멀티에이전트](docs/MULTI_AGENT.md) | 팀 구성·위임·검증 규칙 (tablet-kiosk-core 구조 이식) |
+| [작업 목록](tasks/README.md) | `GS-06-001`~`055` 상태표와 작업별 지시서 |
+
+## 멀티에이전트 개발
+
+| 구분 | 모델 | 설정 |
+| --- | --- | --- |
+| 팀장 (주 에이전트, 주 세션) | Claude Opus 5.5 | `.claude/settings.json` |
+| 팀원 (부 에이전트 11개) | Claude Sonnet 5.5 | `.claude/agents/*.md` |
+
+팀원: 분야 전문가 `nextjs-expert` · `supabase-expert` · `worker-expert`, 대리 `sub-agent-1`, 사원 `sub-agent-2`, 검증 `plan-challenger` · `review-expert` · `contract-reviewer` · `security-auditor` · `test-writer`, 고문 `advisor`. 명령: `/next-task`, `/check`, `/agent-check`, `/sync-design`.
+
+```bash
+git clone https://github.com/DevOps0906/GlobalsellerOS.git
+git clone https://github.com/DevOps0906/platform-docs.git   # 공용 코어 문서, 나란히
+cd GlobalsellerOS && claude --add-dir ../platform-docs     # 세션 안에서 /next-task
+```
+
 ## 폴더 구조
 
 ```
+CLAUDE.md             # 팀장 세션이 먼저 읽는 규칙
+.claude/              # settings.json, agents/, commands/, skills/
 prototype/
   index.html          # 단일 파일 프로토타입 (HTML + CSS + JS, 라이트/다크 테마)
   screenshots/        # 화면 캡처
 docs/
+  설계/DESIGN_STRUCTURE.md        # 디자인 구조 다이어그램 + 이름 정본
+  기획서/                          # README, 01~08
+  개발서/                          # 개발 방법 안내서
+  MULTI_AGENT.md                  # 멀티에이전트 운영
   planning-update-2026-10-23.md   # 마켓 탭 · 마켓 추가 · 상품 수집 기획 + 벤치마킹
+tasks/                # README.md(상태표) + task-001~055.md
+supabase/             # migrations(코어 lite + globalseller 도메인), seed.sql
 tests/
   prototype-smoke.js  # 메뉴·탭·필터·마법사 동작 확인 (Playwright)
 ```
@@ -57,8 +90,6 @@ npm test        # Chromium으로 prototype/index.html 의 메뉴·마켓 탭·�
 
 설치된 Chromium을 쓰려면 `CHROMIUM_PATH=/path/to/chromium npm test`.
 
-## 다음 단계 (MVP 제안)
+## 다음 단계
 
-1. 쿠팡 **URL 목록 업로드 + 크롬 확장프로그램 수집**부터 구현 — 파트너스 API 승인 없이 바로 검증 가능
-2. 주문 → 쿠팡 발주 반자동화 (n8n / Make 시나리오)
-3. Next.js App Router + Supabase로 정식 전환, 마켓 API는 eBay(무료·OAuth) → Amazon SP-API 순으로 연동
+`tasks/README.md`의 W0(`GS-06-001` 모노레포 골격부터)를 `/next-task`로 시작한다. MVP 마켓은 eBay US → Amazon US 순, 수집 경로는 URL 개별·URL 목록·확장프로그램(파트너스 API 키워드 수집은 P1). 착수 전 결정(D-01~D-17)은 `docs/기획서/01_PRD.md` 8장.
