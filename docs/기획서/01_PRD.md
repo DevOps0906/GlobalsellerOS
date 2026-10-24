@@ -64,7 +64,7 @@
 | ID | 기능 | 처리 | 요구사항 | 수용 기준 | 근거 |
 |---|---|---|---|---|---|
 | GS-F-001 | 로그인(인증 단계) | 이식 | Stage A: 로컬 시드 페르소나 Mock 로그인(`/api/dev/login`, 로컬 전용). Stage B: Google OAuth + 이메일·비밀번호, `/auth/callback` 공통 처리. Stage C1 카카오, C2 네이버 | A: `owner` 페르소나 로그인 후 `/dashboard` 진입, 배포 빌드에서 `/api/dev/login` 404. B-1~B-6(`AUTH_ROADMAP.md` 5.3절) 전부 통과. C1-1~C1-5, C2-1~C2-6은 해당 단계 착수 시 | `platform-docs/products/_platform-core/AUTH_ROADMAP.md:35-219` |
-| GS-F-002 | 조직·팀 멤버 | 이식 | 가입 시 개인 조직 생성, 이메일 초대, 역할 4종(owner·admin·editor·viewer), 소유권 이전 | viewer가 쓰기 API 호출 시 403, 다른 조직 데이터 0행, 플랜 멤버 한도(4.1절) 초과 초대 시 `GS003` | 코어 `invite_member`(`MONOLITH_CORE_LITE.sql:486`), 프로토타입 `:4045` |
+| GS-F-002 | 조직·팀 멤버 | 이식 | 가입 시 개인 조직 생성, 이메일 초대, 역할 4종(owner·admin·member·viewer, 코어 `org_members_role_check` `MONOLITH_CORE_LITE.sql:172`), 소유권 이전 | viewer가 쓰기 API 호출 시 403, 다른 조직 데이터 0행, 플랜 멤버 한도(4.1절) 초과 초대 시 `GS003` | 코어 `invite_member`(`MONOLITH_CORE_LITE.sql:486`), 프로토타입 `:4045` |
 | GS-F-003 | 플랜·구독 | 이식 | Toss 빌링키 정기결제, 플랜 변경(즉시 업그레이드·다음 주기 다운그레이드), 영수증 | 테스트 키로 Starter → Pro 업그레이드 시 차액 결제 1건, `subscriptions.plan_code=pro`, 결제 실패 3회 시 `past_due` | `CORE_SPEC.md` 5장(`:201-243`) |
 | GS-F-004 | 크레딧 지갑 | 이식 | 유료 작업(AI 번역, 이미지 변환)은 Route Handler 안에서 선차감 → 실패 시 환불. 월 지급분 + 크레딧팩 | 같은 `request_id` 2회 요청 시 원장 1행, 잔액 부족 시 402와 잡 0건, 번역 실패 시 환불 행 1개 | `CORE_SPEC.md:177-199` |
 | GS-F-005 | 플랜 한도 판정 | 신규 | 상품 수, 연결 마켓 수, 월 AI 번역 수, 멤버 수를 서버에서만 판정(`plan_usage` RPC) | 한도 초과 수집·연결·초대 요청이 `GS003`(403)으로 거절되고 화면에 업그레이드 안내, 요청 바디의 plan 값 무시 | 프로토타입 플랜 카드(`:3439-3469`), 사용량 바(`:3489-3497`) |
