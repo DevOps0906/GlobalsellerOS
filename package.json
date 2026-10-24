@@ -1,0 +1,12 @@
+{
+  "name": "globalseller-os",
+  "version": "0.1.0",
+  "private": true,
+  "description": "역직구 멀티채널 SaaS GlobalSeller OS — 프로토타입과 기획 문서",
+  "scripts": {
+    "test": "node tests/prototype-smoke.js"
+  },
+  "devDependencies": {
+    "playwright": "1.47.2"
+  }
+}
