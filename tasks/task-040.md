@@ -22,6 +22,7 @@
 
 - `docs/설계/DESIGN_STRUCTURE.md` 4장
 - `prototype/index.html:4163-4330` (마법사 원본 스크립트 mkEval)
+- `docs/설계/DESIGN_STRUCTURE.md` 4.1절 (7문항 답변 값·기본 선택 — DB 제약 `readiness_answers_values_check`와 같게)
 
 ## 할 것
 

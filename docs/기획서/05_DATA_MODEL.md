@@ -4,7 +4,7 @@
 
 ## 1. 개요와 ERD
 
-스키마 두 개를 쓴다(01_PRD D-12 (a)). 코어 표는 `public`(platform-docs 코어 사본, 수정 금지), 제품 표 22개와 뷰 2개는 `globalseller`. 모든 제품 표는 `org_id`를 가지며 같은 조직 행끼리만 복합 FK `(org_id, id)`로 묶인다(다른 조직 행 참조 불가). 예외는 공용 참조 표 `fx_rates` 하나다.
+스키마 두 개를 쓴다(01_PRD D-12 (a), 2026-10-25 확정). 코어 표는 `public`(platform-docs 코어 사본, 수정 금지), 제품 표 22개와 뷰 2개는 `globalseller`. 모든 제품 표는 `org_id`를 가지며 같은 조직 행끼리만 복합 FK `(org_id, id)`로 묶인다(다른 조직 행 참조 불가). 예외는 공용 참조 표 `fx_rates` 하나다.
 
 ```mermaid
 erDiagram
@@ -93,8 +93,8 @@ erDiagram
 
 | 테이블 | 목적 | 주요 컬럼 | 제약 | `domain.sql` |
 |---|---|---|---|---|
-| `market_health_snapshots` | 마켓 탭 지표 일별 스냅샷 | `market_account_id`, `snapshot_date`, `metrics`(odr, late_shipment_rate, pre_fulfillment_cancel_rate, valid_tracking_rate, on_time_delivery_rate, seller_level, defect_rate, lsr, nfr, chat_response_rate, api_usage_pct) | 계정·날짜당 1행 | `:677-689` |
-| `readiness_answers` | 마켓 추가 마법사 여건 진단 이력 | `answers`(biz, tel, pay, card, region, cat, budget 키 필수), `answered_by` | 최신 행 = 현재 답변 | `:691-701` |
+| `market_health_snapshots` | 마켓 탭 지표 일별 스냅샷 | `market_account_id`, `snapshot_date`, `metrics` — 주문: odr, late_shipment_rate, pre_fulfillment_cancel_rate, response_24h_rate, seller_level, defect_rate, late_delivery_rate, unanswered_messages, lsr, nfr, chat_response_rate / 배송: valid_tracking_rate, on_time_delivery_rate, tracking_upload_rate, delayed_shipments / 동기화: api_usage_pct, last_sync_at (화면 대응은 DESIGN_STRUCTURE 3.1절, 키 제약 없음·컬럼 주석이 정본) | 계정·날짜당 1행 | `:677-689` |
+| `readiness_answers` | 마켓 추가 마법사 여건 진단 이력 | `answers` — biz(ind·corp·none), tel(yes·no), pay(global·fx·none), card(yes·no), budget(0·50·any), region[](na·jp·sea·eu, 1~4), cat[](beauty·food·living·elec·craft, 1~5). 값 제약 `readiness_answers_values_check`(마이그레이션 0003, DESIGN_STRUCTURE 4.1절), `answered_by` | 최신 행 = 현재 답변 | `:691-701` |
 | `notification_prefs` | 알림 설정 | `user_id`(null = 조직 기본), `channel`(email, slack), `event_key`(order_received, api_error, daily_sales, weekly_report, price_anomaly, renewal_notice), `enabled`, `settings`(비밀 아닌 값) | 범위·채널·이벤트당 1행 | `:703-718` |
 
 ### 2.7 뷰
@@ -205,9 +205,10 @@ viewer는 모든 운영 화면을 읽을 수 있지만 쓰기 RPC에서 42501을
 |---|---|---|
 | `supabase/migrations/20261025000001_core_lite.sql` | 3,378 | 코어 사본, affiliate 제거(머리 주석에 출처·제거 내용) |
 | `supabase/migrations/20261025000002_globalseller_domain.sql` | 1,160 | 1 헬퍼(features, plan_limit, 전이 표, 상태 트리거) · 2 수집 · 3 계정·템플릿 · 4 등록 · 5 동기화 · 6 주문·발주·배송 · 7 건전성·마법사·알림 · 8 트리거 · 9 뷰 · 10 RPC · 11 RLS·GRANT · 12 Realtime |
+| `supabase/migrations/20261025000003_readiness_values_and_metric_keys.sql` | 52 | 여건 진단 답변 값 제약(0002의 키 존재 제약을 대체), 지표·계정 설정 키 주석. 0001·0002는 고치지 않음 |
 | `supabase/seed.sql` | 81 | 앱 `globalseller`, 플랜 4종(free 기본, starter, pro, enterprise, `gs_*` features), 크레딧팩 2종, AI 라우팅 4행, 개발용 환율 4행 |
 
-검사: `node check.mjs --vector mono core_lite domain seed` 세 파일 OK, 도메인·seed를 한 번 더 적용해도 OK(멱등). 모듈러 조각(`_supabase-modular/migrations/2700_globalseller.sql`)은 platform-docs에 등록할 때 만든다(06장 코어 요청).
+검사: `node check.mjs --vector mono core_lite domain 0003 seed checks/readiness_answers.sql` 다섯 파일 OK(답변 제약: 올바른 1건 통과, 틀린 6종 거부), 도메인·seed를 한 번 더 적용해도 OK(멱등). 모듈러 조각(`_supabase-modular/migrations/2700_globalseller.sql`)은 platform-docs에 등록할 때 만든다(06장 코어 요청).
 
 ## 10. 개발용 시드 페르소나 (인증 Stage A)
 

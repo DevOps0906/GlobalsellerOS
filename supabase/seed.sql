@@ -20,7 +20,7 @@ on conflict (id) do update
 --   gs_bulk_listing_max      일괄 등록 1회 항목 수 상한(Route Handler 가 검사)
 --   gs_profit_insights       수익 인사이트 문장(S-07)
 --   gs_scheduled_collect     정기 수집 허용(P1, enqueue_collect_job 이 검사)
--- 가격(원)은 01_PRD D-01 (a) 제안값. 프로토타입 USD(Starter $29 / Pro $79 / Enterprise $199)를 원화로 다시 정했다.
+-- 가격(원)은 01_PRD D-01 (a) 확정(2026-10-25, 권고안 채택), 금액 자체는 제안값. 프로토타입 USD(Starter $29 / Pro $79 / Enterprise $199)를 원화로 다시 정했다.
 -- Enterprise "무제한"은 01_PRD 4.1 시스템 상한(상품 50,000, 마켓 30, 번역 100,000) 제안값을 넣는다. 멤버만 -1.
 insert into public.plans (app_id, code, name, price_krw, billing_interval, monthly_credits, signup_credits, carry_over, features, is_default, is_active, sort_order) values
   ('globalseller', 'free', 'Free', 0, 'month', 50, 0, false,

@@ -66,4 +66,4 @@ GlobalSeller OS는 platform-docs의 기존 제품을 합친 것이 아니라 **�
 | 모놀리스(단독 Supabase) | 1차 개발·출시 기본값 | 이 저장소가 단독 개발 폴더이고, 셀러 마켓 토큰을 다른 제품과 물리적으로 분리하는 편이 위험이 적다(제안). 코어 표는 `MONOLITH_CORE_LITE.sql`을 `supabase/migrations/`에 복사해 쓰고, 도메인 표는 스키마 `globalseller`에 둔다 |
 | 모듈러(통합 DB) | 대안. platform-docs에 제품으로 등록할 때 | 번호 2700(제안, `docs/설계/DESIGN_STRUCTURE.md` 0장). nomad-commerce(1400)와 같은 계정·크레딧 지갑을 쓰면 국내 판매와 역직구를 함께 하는 셀러에게 교차 판매가 쉽다. 전환 시 도메인 SQL의 `globalseller.` 접두사는 그대로 두고 코어 참조만 모듈러 `core.`로 바꾼다(05장 8절) |
 
-결정 대기: 모놀리스에서 코어 표의 스키마를 `public`으로 둘지는 01장 D-12.
+결정 완료: 모놀리스에서 코어 표는 `public`, 도메인은 `globalseller`(01장 D-12 확정, 2026-10-25).

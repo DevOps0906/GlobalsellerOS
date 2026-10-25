@@ -8,9 +8,12 @@ GlobalSeller OS는 단독 Supabase 프로젝트 1개(모놀리스)로 시작한�
 |---|---|---|
 | 1 | `migrations/20261025000001_core_lite.sql` | 공용 코어 사본(platform-docs `_platform-core/MONOLITH_CORE_LITE.sql`, affiliate 절만 제거). 신원·조직, 플랜·구독, Toss 결제, 크레딧, OAuth state, 암호화 자격증명, 레이트 리밋, 잡, Storage, AI 계층, 음성 |
 | 2 | `migrations/20261025000002_globalseller_domain.sql` | 스키마 `globalseller`: 표 22개, 뷰 2개, RPC 5개, 상태 전이 트리거, RLS, Realtime |
-| 3 | `seed.sql` | 앱 행 `globalseller`, 플랜 3종, 크레딧팩 2종, AI 라우팅 기본값, 개발용 환율 |
+| 3 | `migrations/20261025000003_readiness_values_and_metric_keys.sql` | 마법사 여건 진단 답변 허용 값 제약(`readiness_answers_values_check`), 마켓 지표·계정 설정 키 설명 갱신 |
+| 4 | `seed.sql` | 앱 행 `globalseller`, 플랜 4종(free·starter·pro·enterprise), 크레딧팩 2종, AI 라우팅 기본값, 개발용 환율 |
 
-`supabase db reset`이 1 → 2 → seed 순서로 적용한다(파일 이름 순서 + `seed.sql`).
+`supabase db reset`이 1 → 2 → 3 → seed 순서로 적용한다(파일 이름 순서 + `seed.sql`).
+
+기획 단계 검사 SQL은 `checks/`에 있다(`checks/readiness_answers.sql`: 올바른 답변 1건 통과, 틀린 답변 6종 거부). 실행 방법은 파일 머리 주석. GS-06-009가 `tests/`(pgTAP)를 만들면 그쪽으로 옮긴다.
 
 ## 2. 로컬에서 쓰기
 

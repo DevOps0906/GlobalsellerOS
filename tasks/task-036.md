@@ -22,6 +22,7 @@ S-05 주문 통합 관리 화면: `MarketScope` + 마켓별 건전성 띠 + 5단
 
 - `docs/기획서/03_SCREENS_UX.md` 3.6절, 2.5절
 - `prototype/index.html:2928-3032`
+- `docs/설계/DESIGN_STRUCTURE.md` 3.1절 (S-05 마켓별 지표 띠 4칸·버튼)
 
 ## 할 것
 

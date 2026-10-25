@@ -22,6 +22,7 @@ S-11 마켓 추가 마법사 화면: 인터셉트 라우트 모달 5단계, 진�
 
 - `docs/기획서/03_SCREENS_UX.md` 2.6절, 3.11절
 - `docs/설계/DESIGN_STRUCTURE.md` 4장
+- `docs/설계/DESIGN_STRUCTURE.md` 4.1절 (1단계 문항·답변 값·기본 선택)
 
 ## 할 것
 

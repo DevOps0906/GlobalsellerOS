@@ -8,7 +8,7 @@
 - **착수 전 검증**: plan-challenger
 - **변경 후 검증**: review-expert, security-auditor
 - **기능 ID**: GS-F-005
-- **착수 전 결정**: D-02, D-12 (`docs/기획서/01_PRD.md` 8장, 결정 전 착수 금지)
+- **착수 전 결정**: D-02 (`docs/기획서/01_PRD.md` 8장, 결정 전 착수 금지). D-12는 확정(2026-10-25, 코어 `public` · 도메인 `globalseller`)
 
 ## 목표
 
@@ -26,9 +26,9 @@ DB 적용과 타입 생성: 코어 lite + `globalseller` 도메인 마이그레�
 
 ## 할 것
 
-- [ ] 코어 lite 마이그레이션과 도메인 마이그레이션 적용
+- [ ] 마이그레이션 3개 적용(코어 lite → 도메인 → 0003 답변 값 제약)
 - [ ] `config.toml`에 `globalseller` 스키마 노출
-- [ ] 시드(앱 레지스트리 `globalseller`, 플랜 3종) 적용
+- [ ] 시드(앱 레지스트리 `globalseller`, 플랜 4종 free·starter·pro·enterprise) 적용
 - [ ] 타입 생성 파일 저장
 - [ ] 적용 절차를 `supabase/README.md`에 기록
 

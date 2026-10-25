@@ -22,6 +22,7 @@
 
 - `docs/설계/DESIGN_STRUCTURE.md` 9장
 - `docs/기획서/05_DATA_MODEL.md` shipments, market_health_snapshots
+- `docs/설계/DESIGN_STRUCTURE.md` 3.1절 (마켓 지표 키 — health 크론이 채울 `metrics` 키 목록)
 
 ## 할 것
 

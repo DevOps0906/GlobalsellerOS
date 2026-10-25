@@ -139,11 +139,11 @@
 
 | 요소 | 내용 | 데이터 | 행동 | 크레딧 |
 |---|---|---|---|---|
-| 헤더 | "역직구 판매 대시보드", 기간·운영 마켓 부제 | `market_accounts` | - | - |
+| 헤더 | "역직구 판매 대시보드", 기간·운영 마켓 부제, 보고서 버튼(`prototype/index.html:1400`) | `market_accounts` | 보고서 → `/profit`의 리포트 내보내기 | - |
 | KPI 5칸 | 이번 달 매출, 등록 상품, 처리 주문, 평균 마진율, 동기화 상태(`prototype/index.html:1408-1432`) | `v_profit_monthly`, `listings`, `orders`, `sync_events` | 칸 클릭 → 해당 화면 | - |
 | 마켓별 월간 매출 추이 | 최근 6개월, USD(`prototype/index.html:1445`) | `v_profit_monthly` | 막대 호버 → 값 | - |
 | 최근 활동 | 수집·등록·동기화·주문 이벤트 목록(`prototype/index.html:1500`) | `audit_log`, `sync_events` | 행 클릭 → 대상 화면 | - |
-| 최근 등록 상품 | 상품, 쿠팡가, 판매가, 마진, 상태(`prototype/index.html:1554`) | `listings` + `source_products` | 행 클릭 → `/listings?tab=single&id=` | - |
+| 최근 등록 상품 | 상품명, 수집처(쿠팡 태그), 등록 마켓, 쿠팡가, 판매가, 마진, 상태 + "전체 목록 →"(`prototype/index.html:1554-1562`) | `listings` + `source_products` | 행 클릭 → `/listings?tab=single&id=`, 전체 목록 → `/listings?tab=status` | - |
 
 ### 3.2 S-02 쿠팡 상품 수집 (`prototype/index.html:1613-2027`)
 
@@ -155,9 +155,9 @@
 | 수집함 | 파이프라인 | 수집 → 마진 분석 → AI 번역 → 이미지 처리 → 마켓 등록 → 동기화 | 안내 전용 | - | - |
 | 수집함 | 결과 표 | 상품명(배송 유형·별점), 쿠팡 가격, 예상 판매가(USD), 예상 마진, 추천 마켓, 리뷰 수, 액션 | 등록(→ S-03 개별), 검토, 제외 | `source_products` + `/api/pricing/preview` | - |
 | 개별 등록 | 1 상품 불러오기 | URL 입력 / 확장프로그램 세그먼트(`prototype/index.html:1768`) | 불러오기, 확장프로그램 설치 안내 | `POST /api/collect/single` | 상품 수 한도 |
-| 개별 등록 | 2 불러온 상품 정보 | 이미지, 상품명, 상품번호·판매자, 배송 유형·평점·카테고리 배지, 판매가·정가·재고, 옵션 표(체크·옵션·가격·재고), 함께 가져올 항목 4개(`prototype/index.html:1792`) | 옵션 체크, 항목 체크 | `source_products`, `source_product_options` | - |
+| 개별 등록 | 2 불러온 상품 정보 | 이미지, 상품명, 상품번호·판매자, 배송 유형·평점·카테고리 배지, 판매가·정가·재고, 옵션 표(체크·옵션·가격·재고, "수집할 옵션만 체크하세요"), 함께 가져올 항목 4개: 대표·추가 이미지(기본 켬), 상품 고시정보(기본 켬), 상세 이미지 글자 추출 OCR(번역 참고용, 기본 끔), 리뷰 AI 요약(기본 켬)(`prototype/index.html:1792`) | 옵션 체크, 항목 체크 | `source_products`, `source_product_options` | - |
 | 개별 등록 | 3 해외 판매 리스크 검사 | 항공 제한, 브랜드 판매 승인, 이미지 사용 권한, 수입국 규정, 중복 수집(`prototype/index.html:1843`) | 읽기 전용(주의 건수 배지) | `packages/compliance` 결과 → `source_products.risk_flags` | - |
-| 개별 등록 | 우측 요약 | 예상 마진(원가+배송비, 마켓별 권장가, 예상 순마진), 저장 그룹, 메모 | 수집함에 저장, 저장 후 바로 해외 등록 | `PATCH /api/source-products/[id]` | - |
+| 개별 등록 | 우측 요약 | 예상 마진(원가+배송비, 마켓별 권장가, 예상 순마진), 저장할 그룹(선택 또는 새 그룹, `collect_groups`), 메모 | 수집함에 저장, 저장 후 바로 해외 등록 | `PATCH /api/source-products/[id]` | - |
 | 대량 수집 | 제약 안내 띠 | 파트너스 API 최종 승인·키워드 전용·호출 제한, 필터는 수집 후 적용 | - | - | - |
 | 대량 수집 | 1 수집 방식 | 키워드 / URL·상품번호 목록 / 확장프로그램 담기 / 정기 수집 카드, 검색 API 한도 게이지(`prototype/index.html:1911`), 키워드 칩, 업로드 드롭존 | 방식 선택, 칩 추가(Enter, 한글 조합 중 무시)·삭제, 파일 끌어놓기, 양식 받기 | `POST /api/collect/upload`, 한도는 `rate_limit_buckets` | 상품 수 한도 |
 | 대량 수집 | 2 조건 필터 | 가격 범위, 최소 리뷰 수, 최소 평점, 예상 마진 하한, 추정 무게 상한, 배송 유형, 제외 키워드·브랜드 칩, 중복 제외, 항공 제한 제외, 수집 후 AI 번역, 통과 상품 일괄 등록 대기열로(`prototype/index.html:1942`) | 프리셋 선택·저장, 수집 시작, 조건 저장 → 정기 수집 등록 | `collect_presets`, `POST /api/collect/jobs` | AI 번역 선택 시 번역 한도 |
@@ -173,8 +173,8 @@
 | 등록 현황 | 마켓별 요약 3칸 | 마켓, 활성 리스팅 수, 신규 수, 비중 막대(`prototype/index.html:2051-2063`) | 카드 클릭 → 마켓 필터 | `listings` 집계 | - |
 | 등록 현황 | 등록 상품 전체 목록 | 상품명(외부 id), 등록 마켓, 현지 가격, 마진율, 조회수, 판매수, 상태(`prototype/index.html:2072`) | 행 클릭 → 개별 편집 | `listings` | - |
 | 개별 등록 | 1 원본 상품 | 원본 요약, 수집 목록에서 변경 | 변경 | `source_products` | - |
-| 개별 등록 | 2 대상 마켓 | 연결 계정 체크 카드(통화·언어) | 체크 | `market_accounts` | 마켓 수 한도 |
-| 개별 등록 | 3 AI 번역·콘텐츠 | 언어 세그먼트(EN/JA), 상품명(글자 수/200), 핵심 특징 5개, 검색 키워드, 브랜드/제조국(`prototype/index.html:2172`) | AI 재생성 | `POST /api/listings/[id]/translate` | AI 번역 1회 |
+| 개별 등록 | 2 대상 마켓 | 연결 계정 체크 카드(마켓 이름 + 통화·언어, 예: Amazon US USD·영문, Amazon JP JPY·일문, eBay US USD·영문, Shopee SG SGD·영문, Shopee TH THB·태국어). 연결 안 된 마켓은 카드 대신 "＋ 마켓 연결"(S-11). MVP 계정은 eBay US·Amazon US, Shopee는 P1 | 체크 | `market_accounts` | 마켓 수 한도 |
+| 개별 등록 | 3 AI 번역·콘텐츠 | 언어 세그먼트(EN/JA), 상품명 Title(글자 수/200), 핵심 특징 Bullet Points(5개 권장, 줄마다 1개), 검색 키워드, 브랜드/제조국(`prototype/index.html:2172`) | AI 재생성 | `POST /api/listings/[id]/translate` | AI 번역 1회 |
 | 개별 등록 | 4 가격·마진 계산 | 쿠팡 원가(₩), 국제 배송비(₩), 환율(₩/USD), 마켓 수수료(%), 목표 마진(%), 가격 끝자리, 계산 결과 4행, 마켓별 판매가 표(`prototype/index.html:2208`) | 입력 즉시 재계산 | `POST /api/pricing/preview`(`packages/domain/pricing.ts`) | - |
 | 개별 등록 | 5 카테고리·필수 속성 | 마켓별 카테고리(AI 추천), 용량/수량, GTIN(필수 표시) | 입력 | `listings.attributes` | - |
 | 개별 등록 | 6 이미지 | 대표·추가 이미지, 흰 배경 일괄 변환, 규격 안내 | 대표 지정, 변환 | Storage `<org_id>/globalseller/listings/` | 이미지 처리 한도(제안) |
@@ -197,7 +197,7 @@ DS 3장 `MarketScope` 패턴(GS-F-034). 탭 바 = 전체 + 연결된 `market_acc
 | 지표 띠(마켓) | 마지막 동기화, API 사용률, 가격 보호/환율/끝자리/품절 리스팅 유지 등 마켓별 4칸, 실패 시 재연결 버튼 | `market_health_snapshots` | 재연결 → `/account/markets` | - |
 | KPI 5칸 | 동기화 대상, 가격 변동 감지, 품절 감지, 마진 경고, 동기화 실패(`prototype/index.html:2861-2865`) | `listings`, `sync_events` | - | - |
 | 최근 변동 내역 | 상품, 마켓, 변동, 쿠팡 이전 → 이후, 마켓 반영, 시각, 상태 + 유형 필터(`prototype/index.html:2871`) | `GET /api/sync/events` | `held` 행 승인 | - |
-| 동기화 규칙 | 기본 규칙 4행(주기, 품절 시, 원가 상승 시, 마진 20% 미만 변경) + 마켓 전용 규칙(Amazon 최저·최고가 보호, 바이박스 추적, JP 10엔 반올림, eBay 품절 리스팅 유지, Shopee 토큰 자동 갱신·국가별 가격) | `sync_rules` | 토글, 주기 선택 | - |
+| 동기화 규칙 | 기본 규칙 4행(주기, 품절 시, 원가 상승 시, 마진 20% 미만 변경) + 마켓 전용 규칙(Amazon 최저·최고가 보호, 바이박스 추적, 엔화 10엔 단위 반올림(JP 전용), eBay 품절 리스팅 유지, Shopee 토큰 자동 갱신·국가별 가격) | `sync_rules` | 토글, 주기 선택 | - |
 | 마켓별 동기화 상태 | 전체 탭에만, 마켓별 API 한도 막대 | `market_health_snapshots` | - | - |
 
 ### 3.6 S-05 주문 통합 관리 (`prototype/index.html:2928-3032`)
@@ -206,7 +206,7 @@ DS 3장 `MarketScope` 패턴(GS-F-034). 탭 바 = 전체 + 연결된 `market_acc
 |---|---|---|---|---|
 | 헤더 | 엑셀 내보내기, 선택 주문 쿠팡 발주 | `orders` | 내보내기, 일괄 발주 | - |
 | 지표 띠(전체) | 오늘 발송 기한 도래, 미답변 문의, 송장 미등록, 계정 상태 경고 | `orders`, `market_health_snapshots` | - | - |
-| 지표 띠(마켓) | Amazon: ODR(<1%), 지연 발송률(<4%), 발송 전 취소율(<2.5%), Ship-by / eBay: 판매자 등급, 거래 결함률, 지연 배송률, 미응답 메시지 / Shopee: LSR, NFR, DTS, 채팅 응답률 + 마켓별 버튼 | `market_health_snapshots` | 발송 확인 일괄 전송, 판매자센터 바로가기(새 탭), SLS 송장 출력(P1) | - |
+| 지표 띠(마켓) | 마켓별 4칸 + 버튼, 정본 DESIGN_STRUCTURE 3.1절. Amazon US: 주문 결함률 ODR(<1%), 지연 발송률(<4%), 발송 전 취소율(<2.5%), 발송 기한 Ship-by / Amazon JP: ODR, 지연 발송률, 고객 문의 24시간 응답률, 발송 기한(出荷期限) / eBay: 판매자 등급, 거래 결함률, 지연 배송률, 미응답 메시지 / Shopee: 늦은 발송률 LSR, 미발송률 NFR, 발송 준비 기간 DTS, 채팅 응답률 | `market_health_snapshots.metrics`, `market_accounts.settings` | Amazon US: 발송 확인 일괄 전송, Seller Central ↗ / Amazon JP: 일문 응대 템플릿(문구 복사), セラーセントラル ↗ / eBay: 메시지함(마켓 메시지 페이지 열기), Seller Hub ↗ / Shopee: SLS 송장 출력(P1), Seller Centre ↗. ↗는 `seller_center_url` 새 탭 | - |
 | 파이프라인 5단계 | 주문 수신 → 쿠팡 발주 → 배대지 입고 → 해외 발송 → 배송 완료(단계별 건수) | `market_tab_counts` | 단계 클릭 → 상태 필터 | - |
 | KPI 5칸 | 오늘 신규 주문, 발주 대기, 이달 주문, 이달 주문 금액(객단가), 취소·반품(`prototype/index.html:2995-2999`) | `orders` | - | - |
 | 상태 세그먼트 | 전체 / 발주 대기 / 배대지 / 발송됨 / 취소·반품(DS 5.1절 그룹), 마켓 탭과 조합 시 숫자 재계산 | `orders` | 선택 → URL `status` | - |
@@ -217,7 +217,7 @@ DS 3장 `MarketScope` 패턴(GS-F-034). 탭 바 = 전체 + 연결된 `market_acc
 | 요소 | 내용 | 데이터 | 행동 | 크레딧 |
 |---|---|---|---|---|
 | 헤더 | 송장 업로드(탭에 따라 문구 변경), 배대지 출고 요청 | - | 업로드 모달, 출고 요청(P1, 배대지 연동 전에는 체크리스트) | - |
-| 지표 띠 | 전체: 출고 마감, 송장 미등록, 운송사 수, 통관 보류 / 마켓: 유효 추적률, 정시 배송률, 배송 템플릿, 핸들링 타임 | `shipments`, `market_health_snapshots` | - | - |
+| 지표 띠 | 정본 DESIGN_STRUCTURE 3.1절. 전체: 오늘 배대지 출고 마감, 마켓에 송장 미등록, 사용 운송사 수, 통관 보류 / Amazon US: 유효 추적률(>95%), 정시 배송률(>90%), 배송 템플릿, 핸들링 타임 / Amazon JP: 유효 추적률, 정시 배송률, 배송 템플릿, 리드타임(出荷作業日数) / eBay: 추적번호 업로드율, 핸들링 타임, 배송 서비스, 지연 배송 / Shopee: 배송 방식(SLS), 국내 집하지 입고 기한(DTS), 송장 출력 대기, 지연 배송 | `shipments`, `market_health_snapshots.metrics`, `market_accounts.settings` | - | - |
 | KPI 5칸 | 배송 중, 배대지 입고 대기, 통관 중, 배송 지연, 평균 배송일(`prototype/index.html:3088-3092`) | `shipments` | - | - |
 | 배송 건 목록 | 송장번호, 마켓, 운송사, 목적지, 현재 구간, 예상 도착, 상태 | `GET /api/shipments` | 행 클릭 → 타임라인, URL `shipment` | - |
 | 구간별 추적 | 쿠팡 발주·출고 → 배대지 입고·검수 → 국제 발송 → 현지 통관 → 현지 배송 → 배송 완료(`prototype/index.html:3117`) | `shipment_events` | - | - |
@@ -241,7 +241,7 @@ DS 3장 `MarketScope` 패턴(GS-F-034). 탭 바 = 전체 + 연결된 `market_acc
 
 | 요소 | 내용 | 데이터 | 행동 |
 |---|---|---|---|
-| 쿠팡 파트너스 API | 비용(무료·최종 승인 후 발급), 인증 방식, Access/Secret 입력(마스킹), 상태 | `encrypted_credentials` | 저장, 연결 테스트 |
+| 쿠팡 파트너스 API (Coupang Partners API) | 비용(무료·최종 승인 후 발급), 인증 방식, Access/Secret 입력(마스킹), 상태 | `encrypted_credentials` | 저장, 연결 테스트 |
 | 확장프로그램 | 설치 안내, 토큰 발급·재발급, 마지막 사용 시각 | `/api/extension/token` | 발급 |
 | 운송사 추적 | 운송사 목록과 추적 방식(공개 조회 / API 키) | `shipping_templates` | 저장 |
 | 마켓 API 안내 | Amazon SP-API, eBay, Shopee, Lazada, TikTok Shop 사양 카드(비용·인증·상태). 연결 자체는 S-10·S-11 | `/api/markets/catalog` | 연결하기 → S-11 |
@@ -254,13 +254,13 @@ PT의 "경쟁사 벤치마킹" 카드(`prototype/index.html:2438`)는 제품 화
 
 | 탭 | 카드 | 필드 | 행동 | 데이터 |
 |---|---|---|---|---|
-| 내 프로필 | 기본 정보, 사업자 정보(인증 배지), 인터페이스 설정 | 이름, 브랜드명, 이메일, 연락처, 시간대, 기본 통화 / 사업자등록번호, 상호, 주소, 업태, 종목 / 언어, 테마 | 수정, 변경사항 저장 | `profiles`, `organizations` |
-| 구독 플랜 | 현재 플랜(갱신일·자동 갱신), 플랜 카드(`free`·`starter`·`pro`·`enterprise`, 프로토타입은 유료 3개), 이번 달 사용량 5개 | Starter·Pro·Enterprise / 상품 등록, AI 번역, 이미지 처리, API 호출, 팀 멤버 | 업그레이드(2.7절) | `subscriptions`, `plan_usage` |
+| 내 프로필 | 기본 정보, 사업자 정보(인증 배지), 인터페이스 설정 | 이름, 브랜드명, 이메일, 연락처, 시간대, 기본 통화 / 사업자등록번호, 상호명, 사업장 주소, 업태, 종목 / 언어, 테마 | 수정, 변경사항 저장 | `profiles`, `organizations` |
+| 구독 플랜 | 현재 플랜(갱신일·자동 갱신), 플랜 카드(`free`·`starter`·`pro`·`enterprise`, 프로토타입은 유료 3개. 가격은 원화 표시 — 39,000원·99,000원·249,000원, D-01 확정·`01_PRD.md` 4.1절), 이번 달 사용량 5개 | Starter·Pro·Enterprise / 상품 등록, AI 번역, 이미지 처리, API 호출, 팀 멤버 | 업그레이드(2.7절) | `subscriptions`, `plan_usage` |
 | 마켓 연결 | 마켓 연결 카드 그리드 | 마켓, 계정, 상태 배지, 토큰 만료·갱신 주기 | ＋마켓 추가(S-11), 재연결, 연결하기(S-11 3단계 바로) | `market_accounts` |
 | API 키 관리 | API 키 방식 마켓 카드 | 키 필드(표시/숨기기/복사), 방식 표기 | 저장, 삭제 | `encrypted_credentials`(마스킹 값만) |
 | 결제 내역 | 결제 수단, 결제 내역 | 카드 끝 4자리·만료, 내용·금액·상태·영수증 | 카드 추가, 전체 내보내기, 영수증 | `payments`, `billing_keys` |
 | 알림 설정 | 이메일 6종, Slack | 주문 수신, API 오류, 일간·주간 리포트, 가격 이상, 구독 갱신 / Slack 채널 | 토글, Slack 연결(P1) | `notification_prefs` |
-| 보안 | 2FA 경고 띠, 비밀번호 변경, 2FA, 최근 로그인 이력, 위험 구역 | 현재·새 비밀번호 / TOTP·SMS / 기기·위치·시각 / 모든 세션 로그아웃, 계정 삭제 | 변경, 토글, 세션 초기화, 계정 삭제(확인 단계 화면 안에서) | Supabase Auth, `audit_log` |
+| 보안 | 2FA 경고 띠, 비밀번호 변경, 2FA, 최근 로그인 이력, 위험 구역 | 현재·새·새 비밀번호 확인 / TOTP 앱(Google Authenticator 등)·SMS 인증 / 기기·위치·시각 / 모든 세션 로그아웃, 계정 삭제 | 변경, 토글, 세션 초기화, 계정 삭제(확인 단계 화면 안에서) | Supabase Auth, `audit_log` |
 | 팀 멤버 관리 | 역할 설명 띠, 멤버 행, 초대 폼 | 이름·이메일·상태·역할 선택 / 이메일·역할 | 역할 변경, 삭제, 재발송, 초대 발송 | `org_members`, 코어 `invite_member`·`change_member_role`·`remove_member` |
 
 비밀번호 변경은 이메일 가입자만 보인다(Google 가입자는 숨김). 2FA는 P1(Supabase MFA, 제안). 계정 삭제·세션 초기화는 `confirm()` 대신 화면 안 확인 단계를 둔다.
@@ -269,7 +269,7 @@ PT의 "경쟁사 벤치마킹" 카드(`prototype/index.html:2438`)는 제품 화
 
 | 단계 | 구성 | 행동 | 데이터 |
 |---|---|---|---|
-| 1 여건 진단 | 안내 띠, 7문항(라디오·체크 칩): 사업자 형태, 통신판매업 신고, 해외 수취 계좌, 해외 결제 카드, 판매 지역, 주력 카테고리, 월 고정비 예산 | 답변 선택, "추천 마켓 보기" | `readiness_answers` |
+| 1 여건 진단 | 안내 띠, 7문항(라디오·체크 칩). 문항·답변 값·기본 선택 정본은 DESIGN_STRUCTURE 4.1절: 사업자 형태(개인사업자·법인사업자·아직 없음), 통신판매업 신고(완료·아직), 해외 판매대금 받을 계좌(글로벌 수취 계좌·국내 은행 외화 계좌·아직 없음), 해외 결제 가능한 신용카드(있음·없음), 판매하고 싶은 지역(북미·일본·동남아·유럽, 복수), 주력 상품 카테고리(뷰티·식품·리빙·주방·전자기기·공예·전통, 복수), 마켓 월 고정비 예산(0원·월 $50 이하·상관없음). 복수 문항을 모두 끄면 다음 버튼 비활성 | 답변 선택, "추천 마켓 보기" | `readiness_answers` |
 | 2 추천 마켓 | 요약(바로 연결 N곳·준비 필요 M곳), 추천 카드 목록(로고, 이름, 상태 배지, 추천·지원사업 배지, 월 고정비·수수료·소요 기간, 준비 필요, 팁, 적합도, 버튼), 정책 변동 안내, 벤치마킹 노트(접기) | 카드 버튼, "추천 1순위 연결" | `/api/markets/catalog`, `packages/domain/readiness.ts` |
 | 3 계정 연결 | 마켓 요약, 판매 국가, 계정 별칭, 요청 권한 4종, OAuth 버튼 또는 API 키 2칸·연결 테스트, 연결 확인 띠 | 승인 / 테스트. 승인 전 "다음" 비활성 | `/api/markets/connect/start`, `/api/markets/accounts` |
 | 4 초기 설정 | 기존 리스팅 가져오기(읽기 전용) 토글, 주문 자동 수집 주기, 가격 규칙·배송 템플릿, 판매 통화, 재고 버퍼, 운영 메뉴 탭 추가 토글 | "연결 완료" | `market_accounts.settings` |

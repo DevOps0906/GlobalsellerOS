@@ -8,7 +8,7 @@
 - **착수 전 검증**: plan-challenger
 - **변경 후 검증**: review-expert, security-auditor, test-writer
 - **기능 ID**: GS-F-003, 004
-- **착수 전 결정**: D-01, D-02 (`docs/기획서/01_PRD.md` 8장, 결정 전 착수 금지)
+- **착수 전 결정**: D-02 (`docs/기획서/01_PRD.md` 8장, 결정 전 착수 금지). D-01은 확정(2026-10-25, 원화 가격 · Toss 결제)
 
 ## 목표
 

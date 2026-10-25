@@ -128,7 +128,8 @@ supabase gen types typescript --local --schema public,globalseller \
 |---|---|---|
 | 1 | `supabase/migrations/20261025000001_core_lite.sql` | 공용 코어 lite (platform-docs `MONOLITH_CORE_LITE.sql` 복사, 제휴마케팅 절 제거) |
 | 2 | `supabase/migrations/20261025000002_globalseller_domain.sql` | 스키마 `globalseller` 테이블·RLS·뷰·RPC |
-| 3 | `supabase/seed.sql` | 앱 레지스트리 `globalseller`, 플랜 3종 |
+| 3 | `supabase/migrations/20261025000003_readiness_values_and_metric_keys.sql` | 마법사 답변 값 제약, 지표·설정 키 설명 |
+| 4 | `supabase/seed.sql` | 앱 레지스트리 `globalseller`, 플랜 4종(free·starter·pro·enterprise) |
 
 규칙: 기존 번호 파일은 절대 고치지 않습니다. 변경은 항상 새 번호 파일로 추가합니다(`supabase/README.md`). 원격 `supabase db push`는 사람이 승인한 뒤에만 합니다.
 
@@ -140,7 +141,7 @@ supabase gen types typescript --local --schema public,globalseller \
 
 | 웨이브 | 먼저 확정할 결정 (`01_PRD.md` 8장 번호) |
 |---|---|
-| W0~W1 | D-01 요금 통화, D-02 Free 플랜, D-12 모놀리스 코어 스키마, D-15~D-17 인증 단계(8.1절) |
+| W0~W1 | D-02 Free 플랜, D-15~D-17 인증 단계(8.1절). (D-01 요금 통화·D-12 모놀리스 코어 스키마는 2026-10-25 확정) |
 | W2 | D-06 확장프로그램 배포 방식, D-07 쿠팡 상세 이미지 정책 |
 | W3 | D-05 AI 번역 제공자와 호출 위치, D-08 Amazon SP-API 앱 형태, D-09 eBay 비즈니스 정책, D-10 환율 출처 |
 | W4 | D-03 쿠팡 발주 자동화 수준, D-04 배대지, D-11 구매자 개인정보 보관 기간 |
@@ -361,7 +362,7 @@ GlobalSeller OS를 platform-docs의 17번째 제품으로 올리려면 아래만
 | 이 저장소 | platform-docs |
 |---|---|
 | `docs/기획서/README.md`, `01~08`, `CLAUDE.md` | `products/globalseller-os/` |
-| `supabase/migrations/20261025000002_globalseller_domain.sql` | `products/globalseller-os/supabase/monolith/migrations/0002_globalseller_domain.sql`, 모듈러 조각 `products/_supabase-modular/migrations/2700_globalseller.sql`(접두사 변환) |
+| `supabase/migrations/20261025000002_globalseller_domain.sql`, `…000003_readiness_values_and_metric_keys.sql` | `products/globalseller-os/supabase/monolith/migrations/0002_globalseller_domain.sql`(0003 내용을 합쳐서), 모듈러 조각 `products/_supabase-modular/migrations/2700_globalseller.sql`(접두사 변환) |
 | `docs/개발서/globalseller-os_develop.md` | `develop/globalseller-os/globalseller-os_develop.md` |
 | 인덱스 | `products/README.md`, `develop/README.md` 제품 표에 1행 |
 

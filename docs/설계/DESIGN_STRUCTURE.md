@@ -118,6 +118,29 @@ flowchart TB
 
 마켓 탭 하나 = 마켓 계정(`market_accounts`) 하나다. 같은 마켓에 계정이 둘이면 탭도 둘이다. 탭 순서는 계정 연결 순서이고, 마법사로 계정을 추가하면 세 화면에 탭이 동시에 생긴다.
 
+### 3.1 마켓 지표 띠 항목과 데이터 키
+
+지표 띠 4칸과 버튼은 마켓마다 다르다(프로토타입 그대로). 값 출처: **지표**는 `market_health_snapshots.metrics`(워커 `health` 크론), **설정**은 `market_accounts.settings`, **집계**는 그 화면 표의 실시간 집계. 키 설명은 마이그레이션 `20261025000003`의 컬럼 주석과 같다.
+
+| 화면 · 마켓 | 4칸 (출처: 키) | 버튼 |
+|---|---|---|
+| S-04 Amazon US | 마지막 동기화(지표 `last_sync_at`), API 사용률(지표 `api_usage_pct`), 가격 보호(규칙 `price_guard`), 반영 방식(고정 문구) | - |
+| S-04 Amazon JP | 마지막 동기화, 기준 환율(`fx_rates`), 가격 끝자리(규칙 `jpy_round_10`), API 사용률 | - |
+| S-04 eBay | 마지막 동기화, 품절 시 리스팅 유지(규칙 `keep_listing_oos`), API 사용률, 가격 끝자리 | - |
+| S-04 Shopee | 마지막 동기화, 원인(`market_accounts.last_error`), 기준 환율, - | 재연결 |
+| S-05 전체 | 오늘 발송 기한 도래, 미답변 고객 문의(지표 `unanswered_messages` 합), 송장 미등록, 계정 상태 경고 (집계) | - |
+| S-05 Amazon US | ODR `odr`(목표 <1%), 지연 발송률 `late_shipment_rate`(<4%), 발송 전 취소율 `pre_fulfillment_cancel_rate`(<2.5%), 발송 기한 Ship-by(집계) | 발송 확인 일괄 전송, Seller Central ↗ |
+| S-05 Amazon JP | ODR `odr`, 지연 발송률 `late_shipment_rate`, 고객 문의 24시간 응답률 `response_24h_rate`, 발송 기한 出荷期限(집계) | 일문 응대 템플릿, セラーセントラル ↗ |
+| S-05 eBay | 판매자 등급 `seller_level`, 거래 결함률 `defect_rate`, 지연 배송률 `late_delivery_rate`, 미응답 메시지 `unanswered_messages` | 메시지함, Seller Hub ↗ |
+| S-05 Shopee | 늦은 발송률 LSR `lsr`, 미발송률 NFR `nfr`, 발송 준비 기간 DTS(설정 `dts_days`), 채팅 응답률 `chat_response_rate` | SLS 송장 출력(P1), Seller Centre ↗ |
+| S-06 전체 | 오늘 배대지 출고 마감, 마켓에 송장 미등록, 사용 운송사 수, 통관 보류 (집계) | - |
+| S-06 Amazon US | 유효 추적률 `valid_tracking_rate`(목표 >95%), 정시 배송률 `on_time_delivery_rate`(>90%), 배송 템플릿(설정 `shipping_template_id`), 핸들링 타임(설정 `handling_days`) | - |
+| S-06 Amazon JP | 유효 추적률, 정시 배송률, 배송 템플릿, 리드타임 出荷作業日数(설정 `lead_time_days`) | - |
+| S-06 eBay | 추적번호 업로드율 `tracking_upload_rate`, 핸들링 타임(설정 `handling_days`), 배송 서비스(설정 `shipping_service`), 지연 배송 `delayed_shipments` | - |
+| S-06 Shopee | 배송 방식(설정 `logistics`=sls), 국내 집하지 입고 기한(설정 `dts_days`), 송장 출력 대기(집계), 지연 배송 `delayed_shipments` | - |
+
+판매자센터 바로가기(↗)는 설정 `seller_center_url`을 새 탭으로 연다(마켓 API 호출 아님). "일문 응대 템플릿"과 "메시지함"은 MVP에서 템플릿 문구 복사·마켓 메시지 페이지 열기만 한다(마켓 메시지 API 연동은 Phase 2, 제안). 목표 수치(<1% 등)는 마켓 공개 정책값이며 W3·W4 어댑터 작업 착수 시 다시 확인한다(미확인).
+
 ## 4. 마켓 추가 마법사 (S-11)
 
 ```mermaid
@@ -144,6 +167,22 @@ flowchart LR
 | 3 계정 연결 | 판매 국가, 계정 별칭, 요청 권한 4종, OAuth 버튼 또는 API 키 | `market_accounts`(status `connecting` → `active`), 토큰은 `core encrypted_credentials` |
 | 4 초기 설정 | 기존 리스팅 읽기 전용 가져오기, 주문 수집 주기, 가격 규칙·배송 템플릿, 통화, 재고 버퍼, 운영 메뉴 탭 추가 | `market_accounts.settings`, 잡 `globalseller.listing_import` |
 | 5 완료 | 다음 행동 3개 | 감사 `market_account.connected` |
+
+### 4.1 여건 진단 7문항과 답변 값 (DB 제약 `readiness_answers_values_check`와 같다)
+
+화면 문구는 프로토타입 마법사 1단계(`prototype/index.html` `#mk-modal`) 그대로. 저장 값은 아래 코드. 기본 선택은 프로토타입 초기 선택과 같다.
+
+| 키 | 문항 | 형식 | 값 (화면 문구) | 기본 선택 |
+|---|---|---|---|---|
+| `biz` | 1. 사업자 형태 | 단일 | `ind` 개인사업자 · `corp` 법인사업자 · `none` 아직 없음 | `ind` |
+| `tel` | 2. 통신판매업 신고 | 단일 | `yes` 완료 · `no` 아직 | `yes` |
+| `pay` | 3. 해외 판매대금 받을 계좌 | 단일 | `global` 글로벌 수취 계좌(페이오니아·에어월렉스 등) · `fx` 국내 은행 외화 계좌 · `none` 아직 없음 | `global` |
+| `card` | 4. 해외 결제 가능한 신용카드 | 단일 | `yes` 있음 · `no` 없음 | `yes` |
+| `region` | 5. 판매하고 싶은 지역 | 복수(1~4개) | `na` 북미 · `jp` 일본 · `sea` 동남아 · `eu` 유럽 | `na`, `jp`, `sea` |
+| `cat` | 6. 주력 상품 카테고리 | 복수(1~5개) | `beauty` 뷰티 · `food` 식품 · `living` 리빙·주방 · `elec` 전자기기 · `craft` 공예·전통 | `beauty`, `food` |
+| `budget` | 7. 마켓 월 고정비 예산 | 단일 | `0` 0원(수수료만) · `50` 월 $50 이하 · `any` 상관없음 | `50` |
+
+복수 문항에서 모두 해제하면 "추천 마켓 보기" 버튼을 비활성화하고 "1개 이상 선택하세요"를 보여 준다. 점수 규칙은 `packages/domain/readiness.ts`(GS-06-040), 원본은 프로토타입 스크립트 `mkEval`.
 
 ## 5. 운영 데이터 흐름 (수집 → 정산)
 

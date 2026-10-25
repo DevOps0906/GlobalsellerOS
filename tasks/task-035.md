@@ -22,6 +22,7 @@ S-04 재고·가격 동기화 화면: `MarketScope` + 지표 띠(전체·마켓�
 
 - `docs/기획서/03_SCREENS_UX.md` 3.4절, 3.5절
 - `prototype/index.html:2806-2927`
+- `docs/설계/DESIGN_STRUCTURE.md` 3.1절 (S-04 마켓별 지표 띠 4칸)
 
 ## 할 것
 

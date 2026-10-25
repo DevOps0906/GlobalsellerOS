@@ -22,6 +22,7 @@ S-06 배송·물류 추적 화면: `MarketScope` + 지표 띠 + KPI + 배송 건
 
 - `docs/기획서/03_SCREENS_UX.md` 3.7절
 - `prototype/index.html:3033-3148`
+- `docs/설계/DESIGN_STRUCTURE.md` 3.1절 (S-06 마켓별 지표 띠 4칸)
 
 ## 할 것
 
